@@ -1,3 +1,4 @@
 *.json
 !train_gold.json
 !eval_gold.json
+!test_gold.json
