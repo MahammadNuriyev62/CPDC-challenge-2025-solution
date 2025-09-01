@@ -36,15 +36,17 @@ HAS_GPU_SUPPORT=$?
 
 # Parse command line arguments
 TASK1=false
+TASK1_TEST=false
 TASK2=false
 
 # Show usage instructions if no arguments are provided
 if [ $# -eq 0 ]; then
     echo "Error: No task specified"
-    echo "Usage: $0 [--task1] [--task2] [--task3]"
-    echo "  --task1    Run only Task 1"
-    echo "  --task2    Run only Task 2"
-    echo "  --task3    Run both Task 1 and Task 2"
+    echo "Usage: $0 [--task1] [--task1-test] [--task2] [--task3]"
+    echo "  --task1        Run only Task 1"
+    echo "  --task1-test   Run Task 1 Test"
+    echo "  --task2        Run only Task 2"
+    echo "  --task3        Run both Task 1 and Task 2"
     exit 1
 fi
 
@@ -52,6 +54,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --task1)
             TASK1=true
+            shift
+            ;;
+        --task1-test)
+            TASK1_TEST=true
             shift
             ;;
         --task2)
@@ -65,10 +71,11 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "Error: Unknown option: $1"
-            echo "Usage: $0 [--task1] [--task2] [--task3]"
-            echo "  --task1    Run only Task 1"
-            echo "  --task2    Run only Task 2"
-            echo "  --task3    Run both Task 1 and Task 2"
+            echo "Usage: $0 [--task1] [--task1-test] [--task2] [--task3]"
+            echo "  --task1        Run only Task 1"
+            echo "  --task1-test   Run Task 1 Test"
+            echo "  --task2        Run only Task 2"
+            echo "  --task3        Run both Task 1 and Task 2"
             exit 1
             ;;
     esac
@@ -117,6 +124,24 @@ if [ "$TASK1" = true ]; then
         -w /submission \
         --ipc=host \
         $IMAGE_NAME python local_run_task1.py
+fi
+
+if [ "$TASK1_TEST" = true ]; then
+    echo "Running Task 1 Test..."
+    GPU_FLAG=""
+    if [ $HAS_GPU_SUPPORT -eq 0 ]; then
+        GPU_FLAG="--gpus all"
+    fi
+    docker run \
+        $GPU_FLAG \
+        -v "$(pwd)":/submission \
+        -v "$HF_CACHE_DIR":/root/.cache/huggingface \
+        -e HF_HOME=/root/.cache/huggingface \
+        -e HF_HUB_ENABLE_HF_TRANSFER=1 \
+        $HF_TOKEN_FLAG \
+        -w /submission \
+        --ipc=host \
+        $IMAGE_NAME python local_run_task1_test.py
 fi
 
 if [ "$TASK2" = true ]; then
