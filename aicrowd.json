@@ -1,0 +1,23 @@
+{
+  "challenge_id": "integrating-contextual-dialogue-and-task-execution-hybrid",
+  "gpu": true,
+  "authors": ["nuriyev"],
+  "description": "Task 3",
+  "hf_models": [
+    {
+      "repo_id": "nuriyev/qwen3-14B-cpdc-tool-lora",
+      "token": true,
+      "revision": "490bb07891ce123b9e6d3fe90fced5bb6b6caf2f"
+    },
+    {
+      "repo_id": "nuriyev/qwen3-14B-cpdc-persona-lora",
+      "token": true,
+      "revision": "89064cd1fa0695ef50125a45c268153c91dc3d4d"
+    },
+    {
+      "repo_id": "unsloth/Qwen3-14B",
+      "token": true,
+      "revision": "b8755c0b498d7b538068383748d6dc20397b4d1f"
+    }
+  ]
+}
