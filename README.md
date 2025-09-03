@@ -1,4 +1,4 @@
-# Commonsense Persona-Grounded Dialogue Challenge 2025 (In progress)
+# Commonsense Persona-Grounded Dialogue Challenge 2025
 
 ![diagram.png](./assets/diagram2.png)
 
