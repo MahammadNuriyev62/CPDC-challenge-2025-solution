@@ -9,5 +9,5 @@ Our approach leveraged Qwen3 as the base model due to its superior native tool-c
 - Public Leaderboard: https://www.aicrowd.com/challenges/commonsense-persona-grounded-dialogue-challenge-2025/leaderboards
 - Winners Announcement: https://discourse.aicrowd.com/t/winners-call-for-paper/17412
 - Technical report ([Wordplay website](https://wordplay-workshop.github.io/modern/#:~:text=Efficient%20Tool%2DCalling%20Multi%2DExpert%20NPC%20Agent%20for%20Commonsense%20Persona%2DGrounded%20Dialogue)): https://wordplay-workshop.github.io/pdfs/12.pdf
--  Technical report (Arxiv): (soon)
+-  Technical report (Arxiv): https://arxiv.org/abs/2511.01720
 
