@@ -182,3 +182,4 @@ results/*
 !results/train.json
 !results/eval.json
 !results/test_gold.json
+unsloth_compiled_cache/

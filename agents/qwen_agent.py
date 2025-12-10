@@ -160,26 +160,38 @@ class QwenAgent(object):
     A simple agent implementation for the Sony CPDC challenge.
     """
 
-    def __init__(self):
-        """Load necesasry models and configurations here"""
-
+    def __init__(self, 
+            tool_lora_repo_id: str = "nuriyev/qwen3-14B-cpdc-tool-lora",
+            tool_lora_revision: str = "490bb07891ce123b9e6d3fe90fced5bb6b6caf2f",
+            persona_lora_repo_id: str = "nuriyev/qwen3-14B-cpdc-persona-lora",
+            persona_lora_revision: str = "89064cd1fa0695ef50125a45c268153c91dc3d4d",
+            base_model_repo_id: str = "unsloth/Qwen3-14B",
+            base_model_revision: str = "b8755c0b498d7b538068383748d6dc20397b4d1f",
+            max_seq_length: int = 5500,
+            load_in_4bit: bool = True,
+            load_in_8bit: bool = False,
+        ):
+        
         lora_tool_path = get_model_path(
-            "nuriyev/qwen3-14B-cpdc-tool-lora",
-            revision="490bb07891ce123b9e6d3fe90fced5bb6b6caf2f",
+            tool_lora_repo_id,
+            revision=tool_lora_revision,
+            local_files_only=False
         )
         lora_persona_path = get_model_path(
-            "nuriyev/qwen3-14B-cpdc-persona-lora",
-            revision="89064cd1fa0695ef50125a45c268153c91dc3d4d",
+            persona_lora_repo_id,
+            revision=persona_lora_revision,
+            local_files_only=False
         )
         model_path = get_model_path(
-            "unsloth/Qwen3-14B",
-            revision="b8755c0b498d7b538068383748d6dc20397b4d1f",
+            base_model_repo_id,
+            revision=base_model_revision,
+            local_files_only=False
         )
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
             model_name=model_path,
-            max_seq_length=5500,
-            load_in_4bit=False,
-            load_in_8bit=False,
+            max_seq_length=max_seq_length,
+            load_in_4bit=load_in_4bit,
+            load_in_8bit=load_in_8bit,
         )
         FastLanguageModel.for_inference(self.model)
         self.model.load_adapter(

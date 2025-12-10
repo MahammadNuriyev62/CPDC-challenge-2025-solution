@@ -1,11 +1,24 @@
 import json
 import re
 import os
-from typing import Dict, Any, List, Optional
+import argparse
+from typing import Dict, Any, List, Optional, TypedDict
 from huggingface_hub.utils import EntryNotFoundError
 from huggingface_hub import snapshot_download
 
 SUCCESS_ACTION_CALL_MESSAGE = "The action was successfully executed."
+
+
+class AgentConfig(TypedDict):
+    tool_lora_repo_id: str
+    tool_lora_revision: str
+    persona_lora_repo_id: str
+    persona_lora_revision: str
+    base_model_repo_id: str
+    base_model_revision: str
+    max_seq_length: int
+    load_in_4bit: bool
+    load_in_8bit: bool
 
 
 _JSON_PRIMITIVES = {
@@ -160,7 +173,7 @@ def format_response(response):
     return "\n".join(parts)
 
 
-def get_model_path(repo_id: str, revision: str = "main") -> str:
+def get_model_path(repo_id: str, revision: str = "main", local_files_only=True) -> str:
     # check if we're in colab
     if "COLAB_GPU" in os.environ:
         return repo_id
@@ -180,7 +193,7 @@ def get_model_path(repo_id: str, revision: str = "main") -> str:
         local_model_path = snapshot_download(
             repo_id,
             revision=revision_from_aicrowd_json,
-            local_files_only=True,
+            local_files_only=local_files_only,
             # token=True, # or os.environ.get("HF_TOKEN")
             # Usually not needed if local_files_only=True and files are present
             # but include if AICROWD environment might require it for cache access.
@@ -213,3 +226,84 @@ def get_model_path(repo_id: str, revision: str = "main") -> str:
     print(f"Loading model from local path: {local_model_path}")
 
     return local_model_path  # This is the path to use with Unsloth or other tools
+
+
+def parse_agent_config(args: Optional[List[str]] = None) -> AgentConfig:
+    parser = argparse.ArgumentParser(description="Agent configuration parser")
+
+    # LoRA configurations
+    parser.add_argument(
+        "--tool_lora_repo_id",
+        type=str,
+        default="nuriyev/qwen3-14B-cpdc-tool-lora",
+        help="HuggingFace repo ID for tool LoRA adapter"
+    )
+    parser.add_argument(
+        "--tool_lora_revision",
+        type=str,
+        default="490bb07891ce123b9e6d3fe90fced5bb6b6caf2f",
+        help="Revision/commit hash for tool LoRA adapter"
+    )
+    parser.add_argument(
+        "--persona_lora_repo_id",
+        type=str,
+        default="nuriyev/qwen3-14B-cpdc-persona-lora",
+        help="HuggingFace repo ID for persona LoRA adapter"
+    )
+    parser.add_argument(
+        "--persona_lora_revision",
+        type=str,
+        default="89064cd1fa0695ef50125a45c268153c91dc3d4d",
+        help="Revision/commit hash for persona LoRA adapter"
+    )
+
+    # Base model configurations
+    parser.add_argument(
+        "--base_model_repo_id",
+        type=str,
+        default="unsloth/Qwen3-14B",
+        help="HuggingFace repo ID for base model"
+    )
+    parser.add_argument(
+        "--base_model_revision",
+        type=str,
+        default="b8755c0b498d7b538068383748d6dc20397b4d1f",
+        help="Revision/commit hash for base model"
+    )
+
+    # Model loading configurations
+    parser.add_argument(
+        "--max_seq_length",
+        type=int,
+        default=5500,
+        help="Maximum sequence length for the model"
+    )
+    parser.add_argument(
+        "--load_in_4bit",
+        action="store_true",
+        default=False,
+        help="Load model in 4-bit quantization"
+    )
+    parser.add_argument(
+        "--load_in_8bit",
+        action="store_true",
+        default=False,
+        help="Load model in 8-bit quantization"
+    )
+
+    parsed_args = parser.parse_args(args)
+
+    # Convert to AgentConfig TypedDict
+    config: AgentConfig = {
+        "tool_lora_repo_id": parsed_args.tool_lora_repo_id,
+        "tool_lora_revision": parsed_args.tool_lora_revision,
+        "persona_lora_repo_id": parsed_args.persona_lora_repo_id,
+        "persona_lora_revision": parsed_args.persona_lora_revision,
+        "base_model_repo_id": parsed_args.base_model_repo_id,
+        "base_model_revision": parsed_args.base_model_revision,
+        "max_seq_length": parsed_args.max_seq_length,
+        "load_in_4bit": parsed_args.load_in_4bit,
+        "load_in_8bit": parsed_args.load_in_8bit,
+    }
+
+    return config

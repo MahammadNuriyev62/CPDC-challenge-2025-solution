@@ -1,13 +1,15 @@
 import json
 from agents.user_config import UserAgent
 from agents.qwen_agent import get_tool_calls
+from agents.utils import parse_agent_config
 from sentence_transformers import SentenceTransformer
 import numpy as np
 
 
-model = SentenceTransformer("Qwen/Qwen3-Embedding-0.6B")
+# Delay initialization to avoid conflicts with Unsloth patching
+model = None
 
-with open("./results/test_gold.json", "r") as f:
+with open("augmentation/test_gold.json", "r") as f:
     test_gold = json.load(f)
 
 
@@ -21,6 +23,11 @@ def preprocess_tool_call(tool_calls):
 
 
 def compute_similarity(str1, str2):
+    global model
+    # Initialize model lazily to avoid Unsloth patching conflicts
+    if model is None:
+        # Use a non-Qwen model to avoid conflicts with Unsloth's Qwen3 patches
+        model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
     embeddings = model.encode([str1, str2])
     similarity = np.dot(embeddings[0], embeddings[1]) / (
         np.linalg.norm(embeddings[0]) * np.linalg.norm(embeddings[1])
@@ -36,7 +43,8 @@ n_total_correct_functions = 0
 n_total_incorrect_functions = 0
 
 if __name__ == "__main__":
-    agent = UserAgent()
+    config = parse_agent_config()
+    agent = UserAgent(**config)
 
     for entry in test_gold:
         metadata = {
